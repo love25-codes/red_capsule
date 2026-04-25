@@ -3,6 +3,9 @@ import { useEffect, useState } from "react";
 import { onAuthStateChanged } from "firebase/auth";
 import toast, { Toaster } from "react-hot-toast";
 
+// Context Provider
+import { CapsuleProvider } from "./context/CapsuleContext";
+
 import Navbar from "./components/Navbar";
 import Learn from "./pages/Learn";
 import Dashboard from "./pages/Dashboard";
@@ -26,8 +29,8 @@ function App() {
             currentUser.displayName ||
             currentUser.email?.split("@")[0] ||
             "User",
-
           email: currentUser.email,
+          uid: currentUser.uid, // Storing UID is essential for database queries
         });
       } else {
         setUser(null);
@@ -61,29 +64,30 @@ function App() {
       />
 
       <BrowserRouter>
-
-        {/* Navbar */}
-        <Navbar
-          user={user}
-          logout={logout}
-          setOpen={setOpen}
-        />
-
-        {/* Auth Modal */}
-        {open && (
-          <AuthModal
+        {/* Wrap everything that needs capsule data in the Provider */}
+        <CapsuleProvider>
+          {/* Navbar */}
+          <Navbar
+            user={user}
+            logout={logout}
             setOpen={setOpen}
           />
-        )}
 
-        {/* Routes */}
-        <Routes>
-          <Route path="/" element={<Learn />} />
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/create" element={<Create />} />
-          <Route path="/timeline" element={<Timeline />} />
-        </Routes>
+          {/* Auth Modal */}
+          {open && (
+            <AuthModal
+              setOpen={setOpen}
+            />
+          )}
 
+          {/* Routes */}
+          <Routes>
+            <Route path="/" element={<Learn />} />
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/create" element={<Create />} />
+            <Route path="/timeline" element={<Timeline />} />
+          </Routes>
+        </CapsuleProvider>
       </BrowserRouter>
     </>
   );
