@@ -9,7 +9,6 @@ import { CapsuleProvider } from "./context/CapsuleContext";
 import Navbar from "./components/Navbar";
 import Learn from "./pages/Learn";
 import Dashboard from "./pages/Dashboard";
-import Timeline from "./pages/Timeline";
 import AuthModal from "./components/AuthModal";
 import Create from "./pages/Create";
 
@@ -85,7 +84,6 @@ function App() {
             <Route path="/" element={<Learn />} />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/create" element={<Create />} />
-            <Route path="/timeline" element={<Timeline />} />
           </Routes>
         </CapsuleProvider>
       </BrowserRouter>

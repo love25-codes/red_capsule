@@ -19,7 +19,6 @@ export default function Navbar({ user, logout, setOpen }) {
     { to: "/", label: "Learn", icon: BookOpen },
     { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
     { to: "/create", label: "Create", icon: Plus },
-    { to: "/timeline", label: "Timeline", icon: History },
   ];
 
   return (
