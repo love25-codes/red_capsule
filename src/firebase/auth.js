@@ -7,23 +7,55 @@ import {
 
 import { auth } from "./firebase";
 
-export const signupUser = async (name, email, password) => {
-  const res = await createUserWithEmailAndPassword(auth, email, password);
+/* ---------------------------------- */
+/* SIGNUP USER */
+/* ---------------------------------- */
+export const signupUser = async (
+  name,
+  email,
+  password
+) => {
+  const res =
+    await createUserWithEmailAndPassword(
+      auth,
+      email,
+      password
+    );
 
+  /* Save entered name instantly */
   await updateProfile(res.user, {
-    displayName: name
+    displayName: name.trim(),
   });
 
-  await res.user.reload(); // important
+  /* Refresh latest user data */
+  await res.user.reload();
+
+  /* Return updated user */
+  return auth.currentUser;
+};
+
+/* ---------------------------------- */
+/* LOGIN USER */
+/* ---------------------------------- */
+export const loginUser = async (
+  email,
+  password
+) => {
+  const res =
+    await signInWithEmailAndPassword(
+      auth,
+      email,
+      password
+    );
+
+  await res.user.reload();
 
   return auth.currentUser;
 };
 
-export const loginUser = async (email, password) => {
-  const res = await signInWithEmailAndPassword(auth, email, password);
-  return res.user;
-};
-
+/* ---------------------------------- */
+/* LOGOUT USER */
+/* ---------------------------------- */
 export const logoutUser = async () => {
   await signOut(auth);
 };

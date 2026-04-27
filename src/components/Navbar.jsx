@@ -2,7 +2,6 @@ import { Link, NavLink } from "react-router-dom";
 import {
   LogIn,
   LayoutDashboard,
-  History,
   BookOpen,
   Plus
 } from "lucide-react";
@@ -21,6 +20,30 @@ export default function Navbar({ user, logout, setOpen }) {
     { to: "/create", label: "Create", icon: Plus },
   ];
 
+  /* ---------------------------------- */
+  /* FIXED USERNAME DISPLAY */
+  /* ---------------------------------- */
+  const getUserName = () => {
+    if (!user) return "";
+
+    // Priority 1: Full name entered during signup
+    if (user.name?.trim()) {
+      return user.name.trim().split(" ")[0];
+    }
+
+    // Priority 2: Firebase displayName
+    if (user.displayName?.trim()) {
+      return user.displayName.trim().split(" ")[0];
+    }
+
+    // Priority 3: Email before @
+    if (user.email) {
+      return user.email.split("@")[0];
+    }
+
+    return "User";
+  };
+
   return (
     <header
       className="sticky top-0 z-40 bg-black border-b border-white/10 backdrop-blur-md"
@@ -28,7 +51,7 @@ export default function Navbar({ user, logout, setOpen }) {
     >
       <div className="mx-auto max-w-7xl px-6 md:px-10 flex items-center justify-between">
 
-        {/* Logo and Brand Name */}
+        {/* Logo */}
         <Link
           to="/"
           className="flex items-center gap-2.5 group py-4"
@@ -38,16 +61,21 @@ export default function Navbar({ user, logout, setOpen }) {
 
           <span className="text-white text-2xl tracking-tight font-serif italic">
             <span className="font-light">Red</span>
+
             <span className="text-red-600 font-light ml-1.5">
               Capsule
             </span>
           </span>
         </Link>
 
-        {/* Navigation Links */}
+        {/* Nav Links */}
         <nav className="hidden md:flex items-center h-full">
           {navItems.map(({ to, label, icon: Icon }) => (
-            <NavLink key={to} to={to} className={linkClass}>
+            <NavLink
+              key={to}
+              to={to}
+              className={linkClass}
+            >
               {({ isActive }) => (
                 <>
                   <Icon
@@ -58,7 +86,9 @@ export default function Navbar({ user, logout, setOpen }) {
                     }`}
                   />
 
-                  <span className="relative z-10">{label}</span>
+                  <span className="relative z-10">
+                    {label}
+                  </span>
 
                   {isActive && (
                     <>
@@ -73,14 +103,14 @@ export default function Navbar({ user, logout, setOpen }) {
           ))}
         </nav>
 
-        {/* Actions Section */}
+        {/* Right Section */}
         <div className="flex items-center gap-4">
-
           {user ? (
             <div className="flex items-center gap-4">
 
+              {/* FIXED GREETING */}
               <span className="text-zinc-400 text-xs font-bold uppercase hidden sm:block">
-                Hi, {user.name?.split(" ")[0]}
+                Hi, {getUserName()}
               </span>
 
               <button
@@ -101,7 +131,6 @@ export default function Navbar({ user, logout, setOpen }) {
               Log In
             </button>
           )}
-
         </div>
       </div>
     </header>

@@ -7,7 +7,10 @@ import {
   loginUser
 } from "../firebase/auth";
 
-export default function AuthModal({ setOpen }) {
+export default function AuthModal({
+  setOpen,
+  setUser, // IMPORTANT
+}) {
   const [isLogin, setIsLogin] = useState(true);
 
   const [name, setName] = useState("");
@@ -25,18 +28,47 @@ export default function AuthModal({ setOpen }) {
       setLoading(true);
 
       if (isLogin) {
-        await loginUser(email, password);
-        toast.success("Logged in successfully");
+        const user =
+          await loginUser(email, password);
+
+        /* Instant Navbar Update */
+        if (setUser) {
+          setUser({
+            ...user,
+            name:
+              user.displayName ||
+              user.email?.split("@")[0],
+          });
+        }
+
+        toast.success(
+          "Logged in successfully"
+        );
       } else {
-        await signupUser(name, email, password);
-        toast.success("Account created");
+        const user =
+          await signupUser(
+            name,
+            email,
+            password
+          );
+
+        /* FIXED: SHOW NAME IMMEDIATELY */
+        if (setUser) {
+          setUser({
+            ...user,
+            name: name.trim(),
+            displayName: name.trim(),
+          });
+        }
+
+        toast.success(
+          "Account created"
+        );
       }
 
       setOpen(false);
-
     } catch (err) {
       toast.error(err.message);
-
     } finally {
       setLoading(false);
     }
@@ -44,13 +76,11 @@ export default function AuthModal({ setOpen }) {
 
   return (
     <div className="fixed inset-0 bg-black/70 flex justify-center items-center z-50">
-
       <form
         onSubmit={submit}
         className="relative w-[400px] bg-zinc-950 border border-red-600/20 rounded-2xl p-8"
       >
-
-        {/* Close Button */}
+        {/* Close */}
         <button
           type="button"
           onClick={() => setOpen(false)}
@@ -60,7 +90,9 @@ export default function AuthModal({ setOpen }) {
         </button>
 
         <h2 className="text-white text-2xl font-bold mb-6">
-          {isLogin ? "Login" : "Create Account"}
+          {isLogin
+            ? "Login"
+            : "Create Account"}
         </h2>
 
         {!isLogin && (
@@ -68,7 +100,10 @@ export default function AuthModal({ setOpen }) {
             placeholder="Name"
             className="w-full mb-4 p-3 bg-black text-white rounded-lg"
             value={name}
-            onChange={(e) => setName(e.target.value)}
+            onChange={(e) =>
+              setName(e.target.value)
+            }
+            required
           />
         )}
 
@@ -77,7 +112,10 @@ export default function AuthModal({ setOpen }) {
           placeholder="Email"
           className="w-full mb-4 p-3 bg-black text-white rounded-lg"
           value={email}
-          onChange={(e) => setEmail(e.target.value)}
+          onChange={(e) =>
+            setEmail(e.target.value)
+          }
+          required
         />
 
         <input
@@ -85,7 +123,10 @@ export default function AuthModal({ setOpen }) {
           placeholder="Password"
           className="w-full mb-4 p-3 bg-black text-white rounded-lg"
           value={password}
-          onChange={(e) => setPassword(e.target.value)}
+          onChange={(e) =>
+            setPassword(e.target.value)
+          }
+          required
         />
 
         <button
@@ -101,14 +142,16 @@ export default function AuthModal({ setOpen }) {
         </button>
 
         <p
-          onClick={() => !loading && setIsLogin(!isLogin)}
+          onClick={() =>
+            !loading &&
+            setIsLogin(!isLogin)
+          }
           className="text-zinc-400 mt-4 text-sm cursor-pointer hover:text-white transition-colors"
         >
           {isLogin
             ? "Create new account"
             : "Already have account?"}
         </p>
-
       </form>
     </div>
   );
