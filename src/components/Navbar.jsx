@@ -1,9 +1,12 @@
+import { useState } from "react";
 import { Link, NavLink } from "react-router-dom";
 import {
   LogIn,
   LayoutDashboard,
   BookOpen,
-  Plus
+  Plus,
+  Menu,
+  X
 } from "lucide-react";
 
 const linkClass = ({ isActive }) =>
@@ -14,6 +17,8 @@ const linkClass = ({ isActive }) =>
   }`;
 
 export default function Navbar({ user, logout, setOpen }) {
+  const [mobileMenu, setMobileMenu] = useState(false);
+
   const navItems = [
     { to: "/", label: "Learn", icon: BookOpen },
     { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
@@ -26,17 +31,14 @@ export default function Navbar({ user, logout, setOpen }) {
   const getUserName = () => {
     if (!user) return "";
 
-    // Priority 1: Full name entered during signup
     if (user.name?.trim()) {
       return user.name.trim().split(" ")[0];
     }
 
-    // Priority 2: Firebase displayName
     if (user.displayName?.trim()) {
       return user.displayName.trim().split(" ")[0];
     }
 
-    // Priority 3: Email before @
     if (user.email) {
       return user.email.split("@")[0];
     }
@@ -68,7 +70,7 @@ export default function Navbar({ user, logout, setOpen }) {
           </span>
         </Link>
 
-        {/* Nav Links */}
+        {/* Desktop Nav */}
         <nav className="hidden md:flex items-center h-full">
           {navItems.map(({ to, label, icon: Icon }) => (
             <NavLink
@@ -105,34 +107,100 @@ export default function Navbar({ user, logout, setOpen }) {
 
         {/* Right Section */}
         <div className="flex items-center gap-4">
-          {user ? (
-            <div className="flex items-center gap-4">
 
-              {/* FIXED GREETING */}
-              <span className="text-zinc-400 text-xs font-bold uppercase hidden sm:block">
-                Hi, {getUserName()}
-              </span>
+          {/* Desktop Auth */}
+          <div className="hidden md:flex items-center gap-4">
+            {user ? (
+              <div className="flex items-center gap-4">
 
+                <span className="text-zinc-400 text-xs font-bold uppercase hidden sm:block">
+                  Hi, {getUserName()}
+                </span>
+
+                <button
+                  onClick={logout}
+                  className="px-5 py-2 text-[10px] font-black uppercase tracking-[0.2em] text-white bg-red-600 rounded-full hover:bg-red-500 transition-all active:scale-95"
+                >
+                  Logout
+                </button>
+
+              </div>
+            ) : (
               <button
-                onClick={logout}
-                className="px-5 py-2 text-[10px] font-black uppercase tracking-[0.2em] text-white bg-red-600 rounded-full hover:bg-red-500 transition-all active:scale-95"
+                onClick={() => setOpen(true)}
+                className="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white font-semibold text-sm px-6 py-2.5 rounded-full transition-all hover:shadow-[0_0_20px_rgba(220,38,38,0.4)] active:scale-95"
+                data-testid="nav-login"
               >
-                Logout
+                <LogIn className="w-4 h-4" />
+                Log In
               </button>
+            )}
+          </div>
 
-            </div>
-          ) : (
-            <button
-              onClick={() => setOpen(true)}
-              className="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white font-semibold text-sm px-6 py-2.5 rounded-full transition-all hover:shadow-[0_0_20px_rgba(220,38,38,0.4)] active:scale-95"
-              data-testid="nav-login"
-            >
-              <LogIn className="w-4 h-4" />
-              Log In
-            </button>
-          )}
+          {/* Mobile Hamburger */}
+          <button
+            onClick={() => setMobileMenu(!mobileMenu)}
+            className="md:hidden text-white"
+          >
+            {mobileMenu ? (
+              <X className="w-6 h-6" />
+            ) : (
+              <Menu className="w-6 h-6" />
+            )}
+          </button>
+
         </div>
       </div>
+
+      {/* Mobile Menu */}
+      {mobileMenu && (
+        <div className="md:hidden border-t border-white/10 bg-black px-6 py-4 space-y-3">
+
+          {navItems.map(({ to, label, icon: Icon }) => (
+            <NavLink
+              key={to}
+              to={to}
+              onClick={() => setMobileMenu(false)}
+              className="flex items-center gap-3 text-zinc-300 hover:text-white py-2"
+            >
+              <Icon className="w-4 h-4" />
+              {label}
+            </NavLink>
+          ))}
+
+          <div className="pt-3 border-t border-white/10">
+            {user ? (
+              <div className="space-y-3">
+                <p className="text-zinc-400 text-xs uppercase font-bold">
+                  Hi, {getUserName()}
+                </p>
+
+                <button
+                  onClick={() => {
+                    logout();
+                    setMobileMenu(false);
+                  }}
+                  className="w-full px-5 py-3 text-xs font-black uppercase tracking-[0.2em] text-white bg-red-600 rounded-full hover:bg-red-500 transition-all"
+                >
+                  Logout
+                </button>
+              </div>
+            ) : (
+              <button
+                onClick={() => {
+                  setOpen(true);
+                  setMobileMenu(false);
+                }}
+                className="w-full flex items-center justify-center gap-2 bg-red-600 hover:bg-red-700 text-white font-semibold text-sm px-6 py-3 rounded-full transition-all"
+              >
+                <LogIn className="w-4 h-4" />
+                Log In
+              </button>
+            )}
+          </div>
+
+        </div>
+      )}
     </header>
   );
 }
